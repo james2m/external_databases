@@ -1,13 +1,56 @@
-ExternalDatabases
-=================
+External Databases
+==================
 
-Introduction goes here.
+Makes connecting to a second database easy. You just set the names in database.yml and put the models for the 
+external database inside a namespace. External Databases will create an abstract base class inside the namespace
+and create a connection the database for the models that inherit from it.
 
+Getting Started
+---------------
 
-Example
-=======
+1. Stick External Databases into vendor/plugins.
 
-Example goes here.
+2. Update database.yml
 
+Entries use the same convention as regular database definitions but have a prefix of external_ thus;
 
-Copyright (c) 2008 [name of plugin creator], released under the MIT license
+   login: &login
+     adapter: mysql
+     encoding: utf8
+     username: username
+     password: passwd
+     host: localhost
+   development:
+     database: foo_development
+     <<: *login
+   test:
+     database: foo_test
+     <<: *login
+   production:
+     database: foo_production
+     <<: *login
+   external_production_bar:
+     database: bar_production
+     <<: *login
+   external_development_bar:
+     database: bar_development
+     <<: *login  
+   
+3. Put you models into a namespace and inherit from that
+
+For the database.yml above the namespace would be Bar and the base controller would be Bar::Base.
+So the widgets table in bar would be
+
+   class Bar::Widget < Bar::Base
+   
+     has_many :things
+     
+   end
+
+   class Thing < ActiveRecord::Base
+   
+     belongs_to :widget, :class_name => 'Bar::Widget'
+   
+   end
+   
+Copyright (c) 2008 [James McCarthy], released under the MIT license
